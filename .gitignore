@@ -1,0 +1,6 @@
+# GK Seal repo
+*.zip
+.venv/
+__pycache__/
+dist/
+build/
