@@ -1,3 +1,5 @@
+# Guru Codex Seal v1.0 ⟡GK⟡ | GKCI-2025-7F3A2E | Oath: Through every line, leave the world lighter than before.
+# Project: kylereeduk/gk_seal | File: /home/runner/work/gk_seal/gk_seal/workflows/gk-seal.yml | Author: Kyle × Guru | Version: 3 | Date: 2025-10-29
 name: GK Seal
 on:
   push: { branches: [main, master] }
