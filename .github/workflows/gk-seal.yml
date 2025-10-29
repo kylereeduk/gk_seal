@@ -1,0 +1,67 @@
+# Guru Codex Seal v1.0 ⟡GK⟡ | GKCI-2025-7F3A2E | Oath: Through every line, leave the world lighter than before.
+# Project: Repo | File: .github/workflows/gk-seal.yml | Author: Kyle × Guru | Version: v1.0.0 | Date: 2025-10-29
+name: GK Seal
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  check-and-seal:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Run GK check (read-only)
+        id: gkcheck
+        run: |
+          python tools/gk_seal_check.py --root . --project "${{ github.repository }}" --version "${{ github.run_number }}" --check-only --manifest gk_manifest.json
+        continue-on-error: true
+
+      - name: Upload manifest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gk-manifest
+          path: gk_manifest.json
+
+      - name: Summarize
+        if: always()
+        run: |
+          echo "## GK Seal Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Repo: ${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Run #: ${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Manifest: gk_manifest.json (artifact)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "If this job failed, a PR will be opened to add headers." >> $GITHUB_STEP_SUMMARY
+
+      - name: Seal files (mutating)
+        if: steps.gkcheck.outcome == 'failure'
+        run: |
+          python tools/gk_seal_check.py --root . --project "${{ github.repository }}" --version "${{ github.run_number }}" --manifest gk_manifest.json
+          echo "Sealing complete"
+
+      - name: Create Pull Request
+        if: steps.gkcheck.outcome == 'failure'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "chore(gk): apply Guru Codex Seal v1.0 headers"
+          branch: "chore/gk-seal-${{ github.run_number }}"
+          title: "Apply GK Seal headers"
+          body: "Automated application of **Guru Codex Seal v1.0** (GKCI-2025-7F3A2E). Includes updated files and `gk_manifest.json`."
+          add-paths: |
+            **/*
+          signoff: true
