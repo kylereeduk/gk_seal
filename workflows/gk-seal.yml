@@ -1,0 +1,8 @@
+name: GK Seal
+on:
+  push: { branches: [main, master] }
+  pull_request: { branches: [main, master] }
+  workflow_dispatch:
+jobs:
+  seal:
+    uses: kylereeduk/gk_seal/.github/workflows/gk-seal.yml@v1
